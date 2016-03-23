@@ -1,0 +1,13 @@
+payment.payment_offsite_external_status.*:
+  type: config_entity
+  label: Payment status
+  mapping:
+    description:
+      label: Description
+      type: text
+    id:
+      type: string
+      label: ID
+    label:
+      type: label
+      label: Label

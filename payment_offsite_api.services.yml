@@ -1,0 +1,12 @@
+services:
+  access_check.payment.redirect:
+    class: Drupal\payment_offsite_api\Access\RedirectAccessCheck
+    arguments: ['@entity.manager', 'payment']
+    tags:
+      - { name: access_check, applies_to: _access_payment_offsite_redirect }
+
+  plugin.manager.payment.external_status:
+    class: Drupal\payment_offsite_api\Plugin\Payment\ExternalStatus\PaymentOffsiteExternalStatusManager
+    arguments: ['@cache.discovery', '@module_handler', '@class_resolver', '@string_translation']
+    tags:
+      - { name: plugin_manager_cache_clear}

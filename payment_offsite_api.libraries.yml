@@ -1,0 +1,7 @@
+autosubmit:
+  version: VERSION
+  js:
+    assets/vendor/payment_offsite_api/redirect_autosubmit.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal

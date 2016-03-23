@@ -1,0 +1,21 @@
+<?php
+/**
+ * @file
+ * Contains hook implementations and global functions.
+ */
+
+/**
+ * Cleanup external redirect form from drupal specific items.
+ *
+ * @param array $form
+ *   Form for cleanup.
+ *
+ * @return array
+ *   Cleaned form.
+ */
+function _payment_offsite_api_clean_form(array $form) {
+  unset($form['form_token']);
+  unset($form['form_build_id']);
+  unset($form['form_id']);
+  return $form;
+}
