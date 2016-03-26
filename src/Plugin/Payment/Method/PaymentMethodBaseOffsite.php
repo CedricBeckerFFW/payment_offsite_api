@@ -84,28 +84,36 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
    *
    * @return array
    */
-  protected abstract function paymentForm();
+  abstract protected function paymentForm();
 
   /**
    * IPN/Interaction/Process/Result validator.
    *
    * @return mixed
    */
-  protected abstract function IpnValidate();
+  abstract protected function ipnValidate();
 
   /**
    * Performs the actual IPN/Interaction/Process/Result execution.
    *
    * @return mixed
    */
-  protected abstract function IpnExecute();
+  abstract protected function ipnExecute();
 
   /**
    * Performs signature generation.
    *
    * @return string
    */
-  protected abstract function getSignature();
+  abstract protected  function getSignature();
+
+  /**
+   * Allowed Performs signature generation.
+   *
+   * @return array
+   *   Allowed payment method external statuses array keyed by machine name.
+   */
+  abstract protected  function getAllowedExternalStatuses();
 
   /**
    * Form hidden items generator.

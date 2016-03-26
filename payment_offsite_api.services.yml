@@ -5,8 +5,11 @@ services:
     tags:
       - { name: access_check, applies_to: _access_payment_offsite_redirect }
 
-  plugin.manager.payment.external_status:
-    class: Drupal\payment_offsite_api\Plugin\Payment\ExternalStatus\PaymentOffsiteExternalStatusManager
-    arguments: ['@cache.discovery', '@module_handler', '@class_resolver', '@string_translation']
+  access_check.payment.external:
+    class: Drupal\payment_offsite_api\Access\ExternalAccessCheck
+    arguments: ['@entity.manager', 'payment_method_configuration', ]
     tags:
-      - { name: plugin_manager_cache_clear}
+      - { name: access_check, applies_to: _access_payment_offsite_redirect }
+#    arguments: ['@cache.discovery', '@module_handler', '@class_resolver', '@string_translation']
+#    tags:
+#      - { name: plugin_manager_cache_clear}

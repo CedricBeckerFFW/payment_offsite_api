@@ -7,21 +7,14 @@
 namespace Drupal\payment_offsite_api\Access;
 
 
-use Drupal\Component\Annotation\Plugin;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\Access\AccessInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\payment\Annotations\PaymentMethodConfiguration;
 use Drupal\payment\Entity\PaymentInterface;
-use Drupal\payment\Entity\PaymentMethodConfigurationInterface;
-use Drupal\payment\Plugin\Payment\Method\PaymentMethodManager;
-use Drupal\plugin\PluginType\PluginType;
-use Drupal\plugin\PluginType\PluginTypeInterface;
-use Drupal\Tests\plugin\Unit\PluginType\PluginTypeManagerTest;
 use Symfony\Component\Routing\Route;
 
-class RedirectAccessCheck implements AccessInterface{
+class ExternalAccessCheck implements AccessInterface{
 
   /**
    * The node storage.
@@ -51,9 +44,8 @@ class RedirectAccessCheck implements AccessInterface{
    *   The entity manager.
    */
   public function __construct(EntityTypeManagerInterface $entity_manager) {
-    $this->paymentMethodStorage = $entity_manager->getStorage('PaymentMethodManager');
-    $this->paymentStorage = $entity_manager->getStorage('payment_method_configuration');
-    $this->paymentAccess = $entity_manager->getAccessControlHandler('payment_method_configuration');
+    $this->paymentStorage = $entity_manager->getStorage('payment');
+    $this->paymentAccess = $entity_manager->getAccessControlHandler('payment');
   }
 
   /**
@@ -75,12 +67,10 @@ class RedirectAccessCheck implements AccessInterface{
    * @return \Drupal\Core\Access\AccessResultInterface
    *   The access result.
    */
-  public function access(Route $route, AccountInterface $account, PaymentMethodConfigurationInterface $payment_method_configuration = NULL, $external_status = '') {
-    $payment_method = $this->paymentMethodStorage->load($payment_method_configuration->getPluginId());
-    return TRUE;
-//    return AccessResult::allowedIf($account->id() == $payment->getOwnerId()
-//      && $payment->getPaymentMethod()->getPluginDefinition()['provider'] == 'robokassa_payment'
-//      && $payment->getPaymentStatus()->getPluginId() == 'payment_pending');
+  public function access(Route $route, AccountInterface $account, PaymentInterface $payment = NULL) {
+    return AccessResult::allowedIf($account->id() == $payment->getOwnerId()
+      && $payment->getPaymentMethod()->getPluginDefinition()['provider'] == 'robokassa_payment'
+      && $payment->getPaymentStatus()->getPluginId() == 'payment_pending');
   }
 
 }

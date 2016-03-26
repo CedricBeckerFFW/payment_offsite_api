@@ -10,14 +10,13 @@ payment.offsite.redirect:
         type: entity:payment
 
 payment.offsite.external:
-  path: '/payment/{payment_method_configuration}/{payment_offsite_external_status}'
+  path: '/payment_offsite/{payment_method_configuration}/{external_status}'
   defaults:
-    _form: '\Drupal\payment_offsite_api\Form\OffsiteRedirectPaymentForm'
+    _controller: '\Drupal\payment_offsite_api\Controller\PaymentOffsiteController::content'
   requirements:
     _access_payment_offsite_redirect: 'view'
+    external_status: ^[a-zA-Z0-9_]+
   options:
     parameters:
       payment_method_configuration:
         type: entity:payment_method_configuration
-      payment_offsite_external_status:
-        type: entity:payment_offsite_external_status
