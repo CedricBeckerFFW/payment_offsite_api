@@ -6,12 +6,11 @@
 
 namespace Drupal\payment_offsite_api\Access;
 
-
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\Access\AccessInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\payment\Entity\PaymentInterface;
+use Drupal\payment\Entity\PaymentMethodConfigurationInterface;
 use Symfony\Component\Routing\Route;
 
 class ExternalAccessCheck implements AccessInterface{
@@ -44,8 +43,8 @@ class ExternalAccessCheck implements AccessInterface{
    *   The entity manager.
    */
   public function __construct(EntityTypeManagerInterface $entity_manager) {
-    $this->paymentStorage = $entity_manager->getStorage('payment');
-    $this->paymentAccess = $entity_manager->getAccessControlHandler('payment');
+    $this->paymentStorage = $entity_manager->getStorage('payment_method_configuration');
+    $this->paymentAccess = $entity_manager->getAccessControlHandler('payment_method_configuration');
   }
 
   /**
@@ -55,22 +54,20 @@ class ExternalAccessCheck implements AccessInterface{
    *   The route to check against.
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The currently logged in account.
-   * @param int $node_revision
-   *   (optional) The node revision ID. If not specified, but $node is, access
-   *   is checked for that object's revision.
-   * @param \Drupal\node\NodeInterface $payment
-   *   (optional) A node object. Used for checking access to a node's default
-   *   revision when $node_revision is unspecified. Ignored when $node_revision
-   *   is specified. If neither $node_revision nor $node are specified, then
-   *   access is denied.
+   * @param \Drupal\payment\Entity\PaymentMethodConfigurationInterface $payment_method_configuration
+   *   Payment method configuration instance.
+   * @param string $external_status
+   *   External status.
    *
-   * @return \Drupal\Core\Access\AccessResultInterface
+   * @return \Drupal\Core\Access\AccessResult
    *   The access result.
    */
-  public function access(Route $route, AccountInterface $account, PaymentInterface $payment = NULL) {
-    return AccessResult::allowedIf($account->id() == $payment->getOwnerId()
-      && $payment->getPaymentMethod()->getPluginDefinition()['provider'] == 'robokassa_payment'
-      && $payment->getPaymentStatus()->getPluginId() == 'payment_pending');
+  public function access(Route $route, AccountInterface $account, PaymentMethodConfigurationInterface $payment_method_configuration, $external_status = '') {
+    $payment_method_service = \Drupal::service('plugin.manager.payment.method');
+    $plugin_id = $payment_method_configuration->getPluginId() . ':' . $payment_method_configuration->id();
+    $payment_method = $payment_method_service->createInstance($plugin_id, $payment_method_configuration->getPluginConfiguration());
+    $external_statuses = ['ipn' => FALSE] + $payment_method->getAllowedExternalStatuses();
+    return AccessResult::allowedIf(array_key_exists($external_status, $external_statuses));
   }
 
 }
