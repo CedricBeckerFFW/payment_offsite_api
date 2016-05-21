@@ -308,8 +308,8 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
       if (!method_exists($this, $validate_method_name)) {
         \Drupal::logger('interkassa_payment')->log(
           RfcLogLevel::WARNING,
-          'Validator !method not exists',
-          ['!method' => $validate_method_name]
+          'Validator @method not exists',
+          ['@method' => $validate_method_name]
         );
         return FALSE;
       }
@@ -317,8 +317,8 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
       if (!$this->$validate_method_name()) {
         \Drupal::logger('interkassa_payment')->log(
           RfcLogLevel::WARNING,
-          'Validator !method return FALSE',
-          ['!method' => $validate_method_name]
+          'Validator @method return FALSE',
+          ['@method' => $validate_method_name]
         );
         return FALSE;
       }
@@ -379,8 +379,8 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
     if (!empty($unavailable_required_keys)) {
       \Drupal::logger('interkassa_payment')->log(
         RfcLogLevel::WARNING,
-        'Missing POST keys. POST data: <pre>!data</pre>',
-        ['!data' => print_r($unavailable_required_keys, TRUE)]
+        'Missing POST keys. POST data: <pre>@data</pre>',
+        ['@data' => print_r($unavailable_required_keys, TRUE)]
       );
       return FALSE;
     }
@@ -394,8 +394,8 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
     if (!$this->isConfigured() || $request_merchant != $this->getMerchantId()) {
       \Drupal::logger('interkassa_payment')->log(
         RfcLogLevel::WARNING,
-        'Missing merchant id. POST data: <pre>!data</pre>',
-        ['!data' => print_r(\Drupal::request()->request, TRUE)]
+        'Missing merchant id. POST data: <pre>@data</pre>',
+        ['@data' => print_r(\Drupal::request()->request, TRUE)]
       );
 
       return FALSE;
@@ -412,8 +412,8 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
     if (!$payment) {
       \Drupal::logger('interkassa_payment')->log(
         RfcLogLevel::WARNING,
-        'Missing transaction id. POST data: <pre>!data</pre>',
-        ['!data' => print_r($this->request->request, TRUE)]
+        'Missing transaction id. POST data: <pre>@data</pre>',
+        ['@data' => print_r($this->request->request, TRUE)]
       );
       return FALSE;
     }
@@ -426,8 +426,8 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
     if ($this->getPayment()->getAmount() != $request_amount) {
       \Drupal::logger('interkassa_payment')->log(
         RfcLogLevel::WARNING,
-        'Missing transaction id amount. POST data: <pre>!data</pre>',
-        ['!data' => print_r(\Drupal::request()->request, TRUE)]
+        'Missing transaction id amount. POST data: <pre>@data</pre>',
+        ['@data' => print_r(\Drupal::request()->request, TRUE)]
       );
       return FALSE;
     }
@@ -441,8 +441,8 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
     if (Unicode::strtoupper($request_signature) != Unicode::strtoupper($sign)) {
       \Drupal::logger('interkassa_payment')->log(
         RfcLogLevel::WARNING,
-        'Missing Signature. POST data: <pre>!data</pre>',
-        ['!data' => print_r($this->request->request, TRUE)]
+        'Missing Signature. POST data: <pre>@data</pre>',
+        ['@data' => print_r($this->request->request, TRUE)]
       );
       return FALSE;
     }
