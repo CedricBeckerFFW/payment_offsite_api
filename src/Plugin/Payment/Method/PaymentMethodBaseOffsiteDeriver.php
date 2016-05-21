@@ -68,7 +68,7 @@ class PaymentMethodBaseOffsiteDeriver extends DeriverBase implements ContainerDe
           'label' => $payment_method->label(),
           'message_text' => $configuration_plugin->getMessageText(),
           'message_text_format' => $configuration_plugin->getMessageTextFormat(),
-          'ipnStatuses' => [
+          'ipn_statuses' => [
             'new' => $configuration_plugin->getStatusId('new'),
             'wait_accept' => $configuration_plugin->getStatusId('wait_accept'),
             'success' => $configuration_plugin->getStatusId('success'),
@@ -79,6 +79,7 @@ class PaymentMethodBaseOffsiteDeriver extends DeriverBase implements ContainerDe
           'config' => [
             'ik_co_id' => $configuration_plugin->getCheckoutId(),
             'ik_cur' => $configuration_plugin->getDefaultCurrency(),
+            'ik_cur_default' => $configuration_plugin->getDefaultCurrency(),
             'sign_key' => $configuration_plugin->getSignKey(),
             'test_key' => $configuration_plugin->getSignKey(TRUE),
             'action_url' => $configuration_plugin->getActionUrl(),
