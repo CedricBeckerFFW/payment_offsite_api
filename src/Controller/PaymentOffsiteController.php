@@ -50,13 +50,11 @@ class PaymentOffsiteController extends ControllerBase{
     return [
       '#type' => 'html_tag',
       '#tag' => 'div',
-      '#value' => $this->t('Payment processed as @external_status.', array('@external_status' => $external_status)),
     ];
   }
 
   public function ipnContent(PaymentMethodConfiguration $payment_method_configuration, $external_status = '') {
     return new Response('', 404);
-
   }
 
 }

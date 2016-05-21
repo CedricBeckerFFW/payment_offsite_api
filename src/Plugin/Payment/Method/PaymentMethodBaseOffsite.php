@@ -348,13 +348,13 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
    */
   protected function generateForm() {
     $form_data = $this->getPaymentFormData();
-    $form = array();
+    $form = [];
 
     foreach ($form_data as $key => $value) {
-      $form[$key] = array(
+      $form[$key] = [
         '#type' => 'hidden',
         '#value' => $value,
-      );
+      ];
     }
 
     return $form;

@@ -37,14 +37,14 @@ class OffsiteRedirectPaymentForm extends FormBase {
     $form['#pre_render'] = [static::class . '::cleanupExtraFormItems'];
 
 
-    $form['message'] = array(
+    $form['message'] = [
       '#type' => 'markup',
       '#markup' => '<p>' . $this->t('You will be redirected to the off-site payment server to authorize the payment.') . '</p>',
-    );
-    $form['submit'] = array(
+    ];
+    $form['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Pressed to payment gateway'),
-    );
+    ];
     return $form;
   }
 
@@ -53,6 +53,9 @@ class OffsiteRedirectPaymentForm extends FormBase {
    *
    * @param array $form
    *   The form to clean up.
+   *
+   * @return array
+   *   The cleaned form.
    */
   public static function cleanupExtraFormItems(array $form) {
     unset($form['form_token']);

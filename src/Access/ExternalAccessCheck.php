@@ -34,7 +34,7 @@ class ExternalAccessCheck implements AccessInterface{
    *
    * @var array
    */
-  protected $access = array();
+  protected $access = [];
 
   /**
    * Constructs a new NodeRevisionAccessCheck.

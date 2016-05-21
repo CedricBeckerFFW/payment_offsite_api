@@ -79,10 +79,10 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildConfigurationForm($form, $form_state);
-    $form['plugin_form'] = array(
-      '#process' => array(array($this, 'processBuildConfigurationForm')),
+    $form['plugin_form'] = [
+      '#process' => [[$this, 'processBuildConfigurationForm']],
       '#type' => 'container',
-    );
+    ];
 
     return $form;
   }
@@ -122,16 +122,16 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
    * Implements a form API #process callback.
    */
   public function processBuildConfigurationForm(array &$element, FormStateInterface $form_state, array &$form) {
-    $workflow_group = implode('][', array_merge($element['#parents'], array('workflow')));
-    $element['workflow'] = array(
+    $workflow_group = implode('][', array_merge($element['#parents'], ['workflow']));
+    $element['workflow'] = [
       '#type' => 'vertical_tabs',
-    );
-    $element['statuses'] = array(
+    ];
+    $element['statuses'] = [
       '#group' => $workflow_group,
       '#open' => TRUE,
       '#type' => 'details',
       '#title' => $this->t('Provider statuses mapping'),
-    );
+    ];
 
     foreach (array_keys($this->getStatuses()) as $status) {
       $element['statuses'][$status . '_status'] = $this->getSinglePaymentStatusSelector($form_state, $status)
