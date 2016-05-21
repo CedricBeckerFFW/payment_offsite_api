@@ -175,7 +175,7 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
    */
   protected function getSinglePaymentStatusSelector(FormStateInterface $form_state, $status) {
     $plugin_selector = $this->getPaymentStatusSelector($form_state, $status, $this->getStatusId($status))
-      ->setLabel($this->t('Payment !status status', ['!status' => Unicode::ucfirst($status)]));
+      ->setLabel($this->t('Payment @status status', ['@status' => Unicode::ucfirst($status)]));
 
     return $plugin_selector;
   }
