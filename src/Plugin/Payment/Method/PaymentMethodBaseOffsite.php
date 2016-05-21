@@ -9,25 +9,16 @@
 namespace Drupal\payment_offsite_api\Plugin\Payment\Method;
 
 
-use Drupal\Component\Plugin\ConfigurablePluginInterface;
 use Drupal\Component\Utility\Unicode;
-use Drupal\Core\Cache\CacheableDependencyInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Logger\RfcLogLevel;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Plugin\PluginFormInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Utility\Token;
 use Drupal\payment\EventDispatcherInterface;
 use Drupal\payment\OperationResult;
 use Drupal\payment\Plugin\Payment\Method\PaymentMethodBase;
-use Drupal\payment\Plugin\Payment\Method\PaymentMethodCapturePaymentInterface;
-use Drupal\payment\Plugin\Payment\Method\PaymentMethodInterface;
-use Drupal\payment\Plugin\Payment\Method\PaymentMethodRefundPaymentInterface;
 use Drupal\payment\Plugin\Payment\Status\PaymentStatusManagerInterface;
 use Drupal\payment\Response\Response;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 define('PAYMENT_OFFSITE_SIGN_IN', 'IN');
 define('PAYMENT_OFFSITE_SIGN_OUT', 'OUT');

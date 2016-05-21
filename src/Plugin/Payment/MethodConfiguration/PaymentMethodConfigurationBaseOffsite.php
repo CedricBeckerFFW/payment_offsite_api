@@ -88,37 +88,10 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
   }
 
   /**
-   * @param $haystack
-   * @param $needle
-   * @return bool
+   * Gets all status to set on payment execution.
    */
-  protected function endsWith($haystack, $needle) {
-    // search forward starting from end minus needle length characters
-    return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== false);
-  }
-
-  protected function toLowCamels($value) {
-    return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $value))));
-  }
-
-  protected function getStatusesInfo() {
-    $configuration = array_keys($this->getConfiguration());
-    $statuses = [];
-
-    foreach ($configuration as $value) {
-      if ($this->endsWith($value, '_status_id')) {
-        $status_wo_id = preg_replace('/_id$/', '', $value);
-        $status_wo_status_id = preg_replace('/_status_id$/', '', $value);
-        $statuses[$value] = [
-          'id' => $value,
-          'form_element' => $status_wo_id,
-          'name' => $status_wo_status_id,
-          'status_selector_getter' => $this->toLowCamels('get_' . $status_wo_status_id . 'PaymentStatusSelector'),
-        ];
-      }
-    }
-
-    return $statuses;
+  public function getStatuses() {
+    return $this->configuration['ipnStatuses'];
   }
 
   /**
@@ -128,7 +101,7 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
    *   The plugin ID of the payment status to set.
    */
   public function getStatusId($status_id) {
-    return $this->configuration[$status_id];
+    return $this->configuration['ipnStatuses'][$status_id];
   }
 
   /**
@@ -140,7 +113,7 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
    * @return $this
    */
   public function setStatusId($status_id, $status) {
-    $this->configuration[$status_id] = $status;
+    $this->configuration['ipnStatuses'][$status_id] = $status;
 
     return $this;
   }
@@ -160,8 +133,8 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
       '#title' => $this->t('Provider statuses mapping'),
     );
 
-    foreach ($this->getStatusesInfo() as $status_id => $status) {
-      $element['statuses'][$status['form_element']] = $this->getSinglePaymentStatusSelector($form_state, $status)
+    foreach (array_keys($this->getStatuses()) as $status) {
+      $element['statuses'][$status . '_status'] = $this->getSinglePaymentStatusSelector($form_state, $status)
         ->buildSelectorForm([], $form_state);
     }
 
@@ -172,9 +145,9 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-    foreach ($this->getStatusesInfo() as $status_id => $status) {
+    foreach (array_keys($this->getStatuses()) as $status) {
       $this->getSinglePaymentStatusSelector($form_state, $status)
-        ->validateSelectorForm($form['plugin_form']['statuses'][$status['form_element']], $form_state);
+        ->validateSelectorForm($form['plugin_form']['statuses'][$status . '_status'], $form_state);
     }
   }
 
@@ -184,10 +157,10 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     parent::submitConfigurationForm($form, $form_state);
 
-    foreach ($this->getStatusesInfo() as $status_id => $status) {
+    foreach (array_keys($this->getStatuses()) as $status) {
       $this->getSinglePaymentStatusSelector($form_state, $status)
-        ->submitSelectorForm($form['plugin_form']['statuses'][$status['form_element']], $form_state);
-      $this->setStatusId($status_id, $this->getSinglePaymentStatusSelector($form_state, $status)
+        ->submitSelectorForm($form['plugin_form']['statuses'][$status . '_status'], $form_state);
+      $this->setStatusId($status, $this->getSinglePaymentStatusSelector($form_state, $status)
         ->getSelectedPlugin()
         ->getPluginId());
     }
@@ -201,9 +174,8 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
    * @return \Drupal\plugin\Plugin\Plugin\PluginSelector\PluginSelectorInterface
    */
   protected function getSinglePaymentStatusSelector(FormStateInterface $form_state, $status) {
-    $plugin_selector = $this->getPaymentStatusSelector($form_state, $status['name'], $this->configuration[$status['id']]);
-    $plugin_selector->setLabel($this->t('Payment ' . Unicode::ucfirst($status['name']) . ' status'));
-    $plugin_selector->setDescription($this->t('The status to set payments to after being executed by this payment method.'));
+    $plugin_selector = $this->getPaymentStatusSelector($form_state, $status, $this->getStatusId($status))
+      ->setLabel($this->t('Payment !status status', ['!status' => Unicode::ucfirst($status)]));
 
     return $plugin_selector;
   }

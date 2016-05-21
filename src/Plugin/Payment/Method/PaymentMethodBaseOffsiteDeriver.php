@@ -62,26 +62,29 @@ class PaymentMethodBaseOffsiteDeriver extends DeriverBase implements ContainerDe
       if ($payment_method->getPluginId() == 'payment_interkassa') {
         /** @var \Drupal\interkassa_payment\Plugin\Payment\MethodConfiguration\Interkassa $configuration_plugin */
         $configuration_plugin = $this->paymentMethodConfigurationManager->createInstance($payment_method->getPluginId(), $payment_method->getPluginConfiguration());
-        $this->derivatives[$payment_method->id()] = array(
-            'id' => $base_plugin_definition['id'] . ':' . $payment_method->id(),
-            'active' => $payment_method->status(),
-            'label' => $payment_method->label(),
-
-            'message_text' => $configuration_plugin->getMessageText(),
-            'message_text_format' => $configuration_plugin->getMessageTextFormat(),
-            'new_status_id' => $configuration_plugin->getStatusId('new_status_id'),
-            'wait_accept_status_id' => $configuration_plugin->getStatusId('wait_accept_status_id'),
-            'success_status_id' => $configuration_plugin->getStatusId('success_status_id'),
-            'process_status_id' => $configuration_plugin->getStatusId('process_status_id'),
-            'canceled_status_id' => $configuration_plugin->getStatusId('canceled_status_id'),
-            'fail_status_id' => $configuration_plugin->getStatusId('fail_status_id'),
+        $this->derivatives[$payment_method->id()] = [
+          'id' => $base_plugin_definition['id'] . ':' . $payment_method->id(),
+          'active' => $payment_method->status(),
+          'label' => $payment_method->label(),
+          'message_text' => $configuration_plugin->getMessageText(),
+          'message_text_format' => $configuration_plugin->getMessageTextFormat(),
+          'ipnStatuses' => [
+            'new' => $configuration_plugin->getStatusId('new'),
+            'wait_accept' => $configuration_plugin->getStatusId('wait_accept'),
+            'success' => $configuration_plugin->getStatusId('success'),
+            'process' => $configuration_plugin->getStatusId('process'),
+            'canceled' => $configuration_plugin->getStatusId('canceled'),
+            'fail' => $configuration_plugin->getStatusId('fail'),
+          ],
+          'config' => [
             'ik_co_id' => $configuration_plugin->getCheckoutId(),
             'ik_cur' => $configuration_plugin->getDefaultCurrency(),
             'sign_key' => $configuration_plugin->getSignKey(),
             'test_key' => $configuration_plugin->getSignKey(TRUE),
             'action_url' => $configuration_plugin->getActionUrl(),
             'hash_type' => $configuration_plugin->getHashType(),
-          ) + $base_plugin_definition;
+          ],
+        ] + $base_plugin_definition;
       }
     }
 
