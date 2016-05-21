@@ -3,7 +3,7 @@ payment.offsite.redirect:
   defaults:
     _form: '\Drupal\payment_offsite_api\Form\OffsiteRedirectPaymentForm'
   requirements:
-    _access_payment_offsite_redirect: 'view'
+    _access_payment_offsite_api_redirect: 'TRUE'
 
 payment.offsite.external:
   path: '/payment_offsite/{payment_method_configuration}/{external_status}'

@@ -1,9 +1,8 @@
 services:
-  access_check.payment.redirect:
+  access_check.payment_offsite_api.redirect:
     class: Drupal\payment_offsite_api\Access\RedirectAccessCheck
-    arguments: ['@entity.manager', 'payment']
     tags:
-      - { name: access_check, applies_to: _access_payment_offsite_redirect }
+      - { name: access_check, applies_to: _access_payment_offsite_api_redirect }
 
   access_check.payment.external:
     class: Drupal\payment_offsite_api\Access\ExternalAccessCheck
