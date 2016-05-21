@@ -87,86 +87,122 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
   }
 
   /**
+   * IPN required keys getter.
+   *
    * @return array
+   *   Required keys array.
    */
   public function getIpnRequiredKeys() {
     return $this->ipn_required_keys;
   }
 
   /**
-   * @param array $payment_form_data
+   * IPN required keys setter.
+   *
+   * @param array $required_keys
+   *   Required keys array.
    */
   public function setIpnRequiredKeys($required_keys) {
     $this->ipn_required_keys = $required_keys;
   }
 
   /**
-   * @param $key
-   * @param $value
+   * Add IPN required key.
+   *
+   * @param string $key
+   *   Required key name.
    */
   public function addIpnRequiredKey($key) {
     $this->ipn_required_keys[] = $key;
   }
 
   /**
+   * Payment form data getter.
+   *
    * @return array
+   *   Payment form data keyed by param name.
    */
   public function getPaymentFormData() {
     return $this->payment_form_data;
   }
 
   /**
+   * Payment form data setter.
+   *
    * @param array $payment_form_data
+   *   Payment form data keyed by param name.
    */
   public function setPaymentFormData($payment_form_data) {
     $this->payment_form_data = $payment_form_data;
   }
 
   /**
-   * @param $key
-   * @param $value
+   * Add payment form data.
+   *
+   * @param string $key
+   *   Param name.
+   * @param string $value
+   *   Param value.
    */
   public function addPaymentFormData($key, $value) {
     $this->payment_form_data[$key] = $value;
   }
 
   /**
-   * @return boolean
+   * AautoSubmit flag getter.
+   *
+   * @return bool
+   *   TRUE if autosubmit required FALSE otherwise.
    */
   public function getAutoSubmit() {
     return $this->autoSubmit;
   }
 
   /**
-   * @param boolean $autoSubmit
+   * AautoSubmit flag setter.
+   *
+   * @param bool $auto_submit
+   *   TRUE if autosubmit required FALSE otherwise.
    */
-  public function setAutoSubmit($autoSubmit) {
-    $this->autoSubmit = $autoSubmit;
+  public function setAutoSubmit($auto_submit) {
+    $this->autoSubmit = $auto_submit;
   }
 
   /**
+   * AutoSubmit flag getter.
+   *
    * @return bool
+   *   TRUE if autosubmit required FALSE otherwise.
    */
   public function isAutoSubmit() {
     return $this->getAutoSubmit();
   }
 
   /**
+   * Fallback mode  flag getter.
+   *
    * @return bool
+   *   TRUE if fallback mode IPN execution required FALSE otherwise.
    */
   public function getFallbackMode() {
     return $this->fallback_mode;
   }
 
   /**
-   * @param $fallback_mode
+   * Fallback mode flag setter.
+   *
+   * @param bool $fallback_mode
+   *   TRUE if fallback mode execution required FALSE otherwise.
    */
   public function setFallbackMode($fallback_mode) {
     $this->fallback_mode = $fallback_mode;
   }
 
   /**
+   * Fallback mode flag getter.
+   *
    * @return bool
+   *   TRUE if autosubmit required FALSE otherwise.
    */
   public function isFallbackMode() {
     return $this->getFallbackMode();
@@ -176,13 +212,22 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
    * Redirect form builder.
    *
    * @return array
+   *   Form array.
    */
   abstract protected function paymentForm();
 
   /**
    * Performs the actual IPN/Interaction/Process/Result execution.
    *
-   * @return mixed
+   * Example result:
+   * $ipn_result = [
+   * 'status' => 'fail',
+   *  'message' => '',
+   *   'response_code' => 200,
+   *  ];
+   *
+   * @return array
+   *   Execution result array.
    */
   abstract public function ipnExecute();
 
@@ -190,6 +235,7 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
    * Performs signature generation.
    *
    * @return string
+   *   Generated signature.
    */
   abstract protected function getSignature($signature_type = PAYMENT_OFFSITE_SIGN_IN);
 
@@ -210,22 +256,34 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
   abstract protected function getMerchantIdName();
 
   /**
-   * @return mixed
+   * Transaction ID name getter.
+   *
+   * @return string
+   *   Transaction ID name.
    */
   abstract protected function getTransactionIdName();
 
   /**
-   * @return mixed
+   * Amount name getter.
+   *
+   * @return string
+   *   Amount name.
    */
   abstract protected function getAmountName();
 
   /**
-   * @return mixed
+   * Signature name getter.
+   *
+   * @return string
+   *   Signature name.
    */
   abstract protected function getSignatureName();
 
   /**
-   * @return mixed
+   * Signature name getter.
+   *
+   * @return array
+   *   Signature name.
    */
   abstract protected function getRequiredKeys();
 
@@ -399,10 +457,9 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
    * {@inheritdoc}
    */
   public function getPaymentExecutionResult() {
-    $response = new Response(Url::fromRoute('payment.offsite.redirect', array(
-      'payment' => $this->getPayment()
-        ->id()
-    )));
+    $response = new Response(Url::fromRoute('payment.offsite.redirect', [
+      'payment' => $this->getPayment()->id()
+    ]));
     return new OperationResult($response);
   }
 
