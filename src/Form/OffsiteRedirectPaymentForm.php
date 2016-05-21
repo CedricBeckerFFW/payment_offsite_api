@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: oleg
- * Date: 08.03.16
- * Time: 0:15
- */
 
 namespace Drupal\payment_offsite_api\Form;
-
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -15,8 +8,11 @@ use Drupal\payment\Entity\Payment;
 use Drupal\payment\Entity\PaymentInterface;
 use Drupal\payment\Entity\PaymentMethodConfiguration;
 
-
+/**
+ * Builds off-site redirect form.
+ */
 class OffsiteRedirectPaymentForm extends FormBase {
+
   /**
    * {@inheritdoc}
    */
@@ -70,4 +66,5 @@ class OffsiteRedirectPaymentForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // Unused, this is redirect to payment gateway form.
   }
+
 }

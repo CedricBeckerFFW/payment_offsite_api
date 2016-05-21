@@ -7,7 +7,10 @@ use Drupal\Core\Routing\Access\AccessInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\payment\Entity\PaymentInterface;
 
-class RedirectAccessCheck implements AccessInterface{
+/**
+ * Checks access to redirect form.
+ */
+class RedirectAccessCheck implements AccessInterface {
 
   /**
    * Checks routing access for the payment.

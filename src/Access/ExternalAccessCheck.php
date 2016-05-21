@@ -1,59 +1,37 @@
 <?php
-/**
- * @file
- * Contains \Drupal\node\Access\NodeRevisionAccessCheck.
- */
 
 namespace Drupal\payment_offsite_api\Access;
 
 use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\Access\AccessInterface;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\payment\Entity\PaymentMethodConfigurationInterface;
-use Symfony\Component\Routing\Route;
+use Drupal\payment\Plugin\Payment\Method\PaymentMethodManagerInterface;
 
-class ExternalAccessCheck implements AccessInterface{
-
-  /**
-   * The node storage.
-   *
-   * @var \Drupal\node\NodeStorageInterface
-   */
-  protected $paymentStorage;
+/**
+ * Checks access to external responses.
+ */
+class ExternalAccessCheck implements AccessInterface {
 
   /**
-   * The node access control handler.
+   * The payment method manager.
    *
-   * @var \Drupal\Core\Entity\EntityAccessControlHandlerInterface
+   * @var \Drupal\payment\Plugin\Payment\Method\PaymentMethodManagerInterface
    */
-  protected $paymentAccess;
+  protected $paymentMethodManager;
 
   /**
-   * A static cache of access checks.
+   * Constructs a new ExternalAccessCheck object.
    *
-   * @var array
+   * @param \Drupal\payment\Plugin\Payment\Method\PaymentMethodManagerInterface $payment_method_manager
+   *   The payment method manager.
    */
-  protected $access = [];
-
-  /**
-   * Constructs a new NodeRevisionAccessCheck.
-   *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
-   */
-  public function __construct(EntityTypeManagerInterface $entity_manager) {
-    $this->paymentStorage = $entity_manager->getStorage('payment_method_configuration');
-    $this->paymentAccess = $entity_manager->getAccessControlHandler('payment_method_configuration');
+  public function __construct(PaymentMethodManagerInterface $payment_method_manager) {
+    $this->paymentMethodManager = $payment_method_manager;
   }
 
   /**
-   * Checks routing access for the node revision.
+   * Checks routing access for the external responses.
    *
-   * @param \Symfony\Component\Routing\Route $route
-   *   The route to check against.
-   * @param \Drupal\Core\Session\AccountInterface $account
-   *   The currently logged in account.
    * @param \Drupal\payment\Entity\PaymentMethodConfigurationInterface $payment_method_configuration
    *   Payment method configuration instance.
    * @param string $external_status
@@ -62,10 +40,13 @@ class ExternalAccessCheck implements AccessInterface{
    * @return \Drupal\Core\Access\AccessResult
    *   The access result.
    */
-  public function access(Route $route, AccountInterface $account, PaymentMethodConfigurationInterface $payment_method_configuration, $external_status = '') {
-    $payment_method_service = \Drupal::service('plugin.manager.payment.method');
+  public function access(PaymentMethodConfigurationInterface $payment_method_configuration, $external_status = '') {
     $plugin_id = $payment_method_configuration->getPluginId() . ':' . $payment_method_configuration->id();
-    $payment_method = $payment_method_service->createInstance($plugin_id, $payment_method_configuration->getPluginConfiguration());
+    $payment_method = $this->paymentMethodManager->createInstance($plugin_id, $payment_method_configuration->getPluginConfiguration());
+    if (!is_subclass_of($payment_method, 'Drupal\payment_offsite_api\Plugin\Payment\Method\PaymentMethodBaseOffsite')) {
+      // Process only off-site payment methods.
+      return AccessResult::forbidden();
+    }
     $external_statuses = ['ipn' => FALSE] + $payment_method->getAllowedExternalStatuses();
     return AccessResult::allowedIf(array_key_exists($external_status, $external_statuses));
   }

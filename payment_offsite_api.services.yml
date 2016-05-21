@@ -4,8 +4,8 @@ services:
     tags:
       - { name: access_check, applies_to: _access_payment_offsite_api_redirect }
 
-  access_check.payment.external:
+  access_check.payment_offsite_api.external:
     class: Drupal\payment_offsite_api\Access\ExternalAccessCheck
-    arguments: ['@entity.manager', 'payment_method_configuration', ]
+    arguments: ['@plugin.manager.payment.method']
     tags:
-      - { name: access_check, applies_to: _payment_method_configuration }
+      - { name: access_check, applies_to: _access_payment_offsite_api_external }

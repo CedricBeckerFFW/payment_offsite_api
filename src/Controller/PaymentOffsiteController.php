@@ -1,27 +1,64 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: niko
- * Date: 12.03.16
- * Time: 12:55
- */
 
 namespace Drupal\payment_offsite_api\Controller;
-
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\payment\Entity\PaymentMethodConfiguration;
+use Drupal\payment\Plugin\Payment\Method\PaymentMethodManagerInterface;
 use Drupal\payment\Plugin\Payment\MethodConfiguration\PaymentMethodConfigurationInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class PaymentOffsiteController extends ControllerBase{
+/**
+ * Handles result pages and IPN requests.
+ */
+class PaymentOffsiteController extends ControllerBase {
 
-  public function content(PaymentMethodConfiguration $payment_method_configuration, $external_status = '') {
-    $request = \Drupal::request();
-    $payment_method_service = \Drupal::service('plugin.manager.payment.method');
+  /**
+   * The payment method manager.
+   *
+   * @var \Drupal\payment\Plugin\Payment\Method\PaymentMethodManagerInterface
+   */
+  protected $paymentMethodManager;
+
+  /**
+   * Constructs a new PaymentOffsiteController object.
+   *
+   * @param \Drupal\payment\Plugin\Payment\Method\PaymentMethodManagerInterface $payment_method_manager
+   *   The payment method manager.
+   */
+  public function __construct(PaymentMethodManagerInterface $payment_method_manager) {
+    $this->paymentMethodManager = $payment_method_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('plugin.manager.payment.method')
+    );
+  }
+
+  /**
+   * Processes payment gateway responses.
+   *
+   * @param \Drupal\payment\Plugin\Payment\MethodConfiguration\PaymentMethodConfigurationInterface $payment_method_configuration
+   *   The payment method configuration entity.
+   * @param string $external_status
+   *   The passed in status.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request.
+   *
+   * @return array|\Symfony\Component\HttpFoundation\Response
+   *   The response or result page content.
+   */
+  public function content(PaymentMethodConfigurationInterface $payment_method_configuration, $external_status = '', Request $request) {
     $plugin_id = $payment_method_configuration->getPluginId() . ':' . $payment_method_configuration->id();
-    $payment_method = $payment_method_service->createInstance($plugin_id, $payment_method_configuration->getPluginConfiguration());
+    $payment_method = $this->paymentMethodManager
+      ->createInstance($plugin_id, $payment_method_configuration->getPluginConfiguration());
     $external_statuses = $payment_method->getAllowedExternalStatuses();
 
     // Process IPN as hidden.
@@ -47,14 +84,11 @@ class PaymentOffsiteController extends ControllerBase{
     if (is_callable([$payment_method, $method])) {
       return $payment_method->$method($request, $payment_method);
     }
-    return [
-      '#type' => 'html_tag',
-      '#tag' => 'div',
-    ];
-  }
 
-  public function ipnContent(PaymentMethodConfiguration $payment_method_configuration, $external_status = '') {
-    return new Response('', 404);
+    // @todo Add logging of missed content callback in payment method.
+    return [
+      '#markup' => $this->t('Payment processed with @status', ['@status' => $external_status]),
+    ];
   }
 
 }
