@@ -78,7 +78,7 @@ class PaymentMethodBaseOffsiteDeriver extends DeriverBase implements ContainerDe
           ],
           'config' => [
             'ik_co_id' => $configuration_plugin->getCheckoutId(),
-            'ik_cur' => $configuration_plugin->getDefaultCurrency(),
+            'ik_cur' => $configuration_plugin->getCurrencies(),
             'ik_cur_default' => $configuration_plugin->getDefaultCurrency(),
             'sign_key' => $configuration_plugin->getSignKey(),
             'test_key' => $configuration_plugin->getSignKey(TRUE),
