@@ -1,0 +1,9 @@
+plugin.plugin_configuration.payment_method_configuration.payment_offsite_api:
+  type: plugin.plugin_configuration.payment_method_configuration.payment_base
+  mapping:
+    ipn_status:
+      type: sequence
+      label: 'IPN statuses'
+      sequence:
+        type: string
+        label: 'Status mapping'

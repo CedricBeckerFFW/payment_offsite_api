@@ -91,7 +91,7 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
    * Gets all status to set on payment execution.
    */
   public function getStatuses() {
-    return $this->configuration['ipnStatuses'];
+    return $this->configuration['ipn_statuses'];
   }
 
   /**
@@ -101,7 +101,7 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
    *   The plugin ID of the payment status to set.
    */
   public function getStatusId($status_id) {
-    return $this->configuration['ipnStatuses'][$status_id];
+    return $this->configuration['ipn_statuses'][$status_id];
   }
 
   /**
@@ -113,7 +113,7 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
    * @return $this
    */
   public function setStatusId($status_id, $status) {
-    $this->configuration['ipnStatuses'][$status_id] = $status;
+    $this->configuration['ipn_statuses'][$status_id] = $status;
 
     return $this;
   }
