@@ -5,9 +5,9 @@ plugin.plugin_configuration.payment_method_configuration.payment_offsite_api:
     auto_submit:
       type: boolean;
       label: 'Auto submit payment form'
-    debug:
+    verbose:
       type: boolean
-      label: 'Debug mode'
+      label: 'Verbose mode'
     ipn_statuses:
       type: sequence
       label: 'IPN statuses'

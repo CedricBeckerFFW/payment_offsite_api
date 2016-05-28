@@ -140,16 +140,16 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
       '#title' => $this->t('Payment offsite api settings'),
     ];
 
-    $element['payment_offsite_api']['autosubmit'] = [
+    $element['payment_offsite_api']['auto_submit'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Auto submit payment form'),
       '#default_value' => $this->getAutoSubmit(),
     ];
 
-    $element['payment_offsite_api']['debug'] = [
+    $element['payment_offsite_api']['verbose'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Debug mode'),
-      '#default_value' => $this->getDebug(),
+      '#title' => $this->t('Verbose mode'),
+      '#default_value' => $this->getVerbose(),
     ];
 
 
@@ -172,13 +172,13 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
   }
 
   /**
-   * Returns the debug flag.
+   * Returns the verbose flag.
    *
    * @return bool
-   *   Debug flag.
+   *   Verbose flag.
    */
-  public function getDebug() {
-    return $this->configuration['debug'];
+  public function getVerbose() {
+    return $this->configuration['verbose'];
   }
 
   /**

@@ -73,7 +73,7 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
    * @return string
    *   Generated signature.
    */
-  abstract public function getSignature($signature_type = self::PAYMENT_OFFSITE_SIGN_IN);
+  abstract public function getSignature($signature_type = self::SIGN_IN);
 
   /**
    * Allowed Performs signature generation.
@@ -270,7 +270,7 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
    */
   protected function validateSignature() {
     $request_signature = $this->request->get($this->getSignatureName());
-    $sign = $this->getSignature(self::PAYMENT_OFFSITE_SIGN_IN);
+    $sign = $this->getSignature(self::SIGN_IN);
     // Exit now if missing Signature.
     if (Unicode::strtoupper($request_signature) != Unicode::strtoupper($sign)) {
       $this->logger->warning('Missing Signature. POST data: <pre>@data</pre>',

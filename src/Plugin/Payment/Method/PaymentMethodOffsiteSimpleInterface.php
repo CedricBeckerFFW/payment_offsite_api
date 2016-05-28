@@ -11,10 +11,10 @@ namespace Drupal\payment_offsite_api\Plugin\Payment\Method;
  * Class PaymentMethodBaseOffsite
  * @package Drupal\payment_offsite_api\Plugin\Payment\Method
  */
-interface PaymentMethodOffsiteSimpleInterface extends PaymentMethodBaseOffsiteInterface{
+interface PaymentMethodOffsiteSimpleInterface extends PaymentMethodBaseOffsiteInterface {
 
-  const PAYMENT_OFFSITE_SIGN_IN = 'IN';
-  const PAYMENT_OFFSITE_SIGN_OUT = 'OUT';
+  const SIGN_IN = 'IN';
+  const SIGN_OUT = 'OUT';
 
   /**
    * Performs signature generation.
@@ -22,7 +22,7 @@ interface PaymentMethodOffsiteSimpleInterface extends PaymentMethodBaseOffsiteIn
    * @return string
    *   Generated signature.
    */
-  public function getSignature($signature_type = self::PAYMENT_OFFSITE_SIGN_IN);
+  public function getSignature($signature_type = self::SIGN_IN);
 
   /**
    * Allowed Performs signature generation.
@@ -64,11 +64,4 @@ interface PaymentMethodOffsiteSimpleInterface extends PaymentMethodBaseOffsiteIn
    */
   public function getRequiredKeys();
 
-  /**
-   * Is mayment method configured halper.
-   *
-   * @return bool
-   *    TRUE if payment methid configured FALSE otherwise.
-   */
-  public function isConfigured();
 }

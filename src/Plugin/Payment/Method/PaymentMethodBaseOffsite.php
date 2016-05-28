@@ -36,7 +36,7 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase implements Pay
   /**
    * @var bool
    */
-  private $debug = FALSE;
+  private $verbose = FALSE;
 
   /**
    * @var array
@@ -113,7 +113,7 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase implements Pay
   }
 
   /**
-   * AautoSubmit flag getter.
+   * AutoSubmit flag getter.
    *
    * @return bool
    *   TRUE if autosubmit required FALSE otherwise.
@@ -123,7 +123,7 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase implements Pay
   }
 
   /**
-   * AautoSubmit flag setter.
+   * AutoSubmit flag setter.
    *
    * @param bool $auto_submit
    *   TRUE if autosubmit required FALSE otherwise.
@@ -143,34 +143,34 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase implements Pay
   }
 
   /**
-   * AautoSubmit flag getter.
-   *
-   * @return bool
-   *   TRUE if autosubmit required FALSE otherwise.
-   */
-  public function getDebug() {
-    return $this->debug;
-  }
-
-
-  /**
-   * AautoSubmit flag setter.
-   *
-   * @param bool $debug
-   *   TRUE if autosubmit required FALSE otherwise.
-   */
-  public function setDebug($debug) {
-    $this->debug = $debug;
-  }
-
-  /**
    * AutoSubmit flag getter.
    *
    * @return bool
    *   TRUE if autosubmit required FALSE otherwise.
    */
-  public function isDebug() {
-    return $this->getDebug();
+  public function getVerbose() {
+    return $this->verbose;
+  }
+
+
+  /**
+   * AutoSubmit flag setter.
+   *
+   * @param bool $verbose
+   *   TRUE if verbose on FALSE otherwise.
+   */
+  public function setVerbose($verbose) {
+    $this->verbose = $verbose;
+  }
+
+  /**
+   * Verbose flag getter.
+   *
+   * @return bool
+   *   TRUE if verbose on FALSE otherwise.
+   */
+  public function isVerbose() {
+    return $this->getVerbose();
   }
 
 
@@ -236,18 +236,12 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase implements Pay
   abstract public function getResultPages();
 
   /**
-   * Is mayment method configured halper.
-   *
-   * @return bool
-   *    TRUE if payment methid configured FALSE otherwise.
+   * {@inheritdoc}
    */
   abstract public function isConfigured();
 
   /**
-   * IPN/Interaction/Process/Result validator.
-   *
-   * @return bool
-   *    TRUE on successful validation FALSE otherwise.
+   * {@inheritdoc}
    */
   abstract public function ipnValidate();
 

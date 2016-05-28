@@ -11,11 +11,7 @@ namespace Drupal\payment_offsite_api\Plugin\Payment\Method;
  * Class PaymentMethodBaseOffsite
  * @package Drupal\payment_offsite_api\Plugin\Payment\Method
  */
-interface PaymentMethodBaseOffsiteInterface {
-
-  const PAYMENT_OFFSITE_SIGN_IN = 'IN';
-  const PAYMENT_OFFSITE_SIGN_OUT = 'OUT';
-
+interface PaymentMethodOffsiteInterface
   /**
    * Performs the actual IPN/Interaction/Process/Result execution.
    *
@@ -56,7 +52,7 @@ interface PaymentMethodBaseOffsiteInterface {
   public function paymentForm();
 
   /**
-   * Is mayment method configured halper.
+   * Payment method is configuration valid.
    *
    * @return bool
    *    TRUE if payment methid configured FALSE otherwise.
