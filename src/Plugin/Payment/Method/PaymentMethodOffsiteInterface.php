@@ -8,10 +8,10 @@
 namespace Drupal\payment_offsite_api\Plugin\Payment\Method;
 
 /**
- * Class PaymentMethodBaseOffsite
+ * Class PaymentMethodOffsite
  * @package Drupal\payment_offsite_api\Plugin\Payment\Method
  */
-interface PaymentMethodOffsiteInterface
+interface PaymentMethodOffsiteInterface {
   /**
    * Performs the actual IPN/Interaction/Process/Result execution.
    *
@@ -58,4 +58,5 @@ interface PaymentMethodOffsiteInterface
    *    TRUE if payment methid configured FALSE otherwise.
    */
   public function isConfigured();
+
 }

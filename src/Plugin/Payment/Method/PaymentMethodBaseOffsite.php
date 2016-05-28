@@ -21,7 +21,7 @@ use Drupal\payment\Response\Response;
  * Class PaymentMethodBaseOffsite.
  * @package Drupal\payment_offsite_api\Plugin\Payment\Method
  */
-abstract class PaymentMethodBaseOffsite extends PaymentMethodBase implements PaymentMethodBaseOffsiteInterface {
+abstract class PaymentMethodBaseOffsite extends PaymentMethodBase implements PaymentMethodOffsiteInterface {
 
   /**
    * @var bool

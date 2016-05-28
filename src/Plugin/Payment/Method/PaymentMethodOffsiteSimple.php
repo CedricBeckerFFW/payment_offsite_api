@@ -273,6 +273,7 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
     $sign = $this->getSignature(self::SIGN_IN);
     // Exit now if missing Signature.
     if (Unicode::strtoupper($request_signature) != Unicode::strtoupper($sign)) {
+      // @todo replace with throw exception.
       $this->logger->warning('Missing Signature. POST data: <pre>@data</pre>',
         ['@data' => print_r($this->request->request, TRUE)]
       );

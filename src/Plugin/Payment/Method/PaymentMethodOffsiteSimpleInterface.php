@@ -11,7 +11,7 @@ namespace Drupal\payment_offsite_api\Plugin\Payment\Method;
  * Class PaymentMethodBaseOffsite
  * @package Drupal\payment_offsite_api\Plugin\Payment\Method
  */
-interface PaymentMethodOffsiteSimpleInterface extends PaymentMethodBaseOffsiteInterface {
+interface PaymentMethodOffsiteSimpleInterface extends PaymentMethodOffsiteInterface {
 
   const SIGN_IN = 'IN';
   const SIGN_OUT = 'OUT';
