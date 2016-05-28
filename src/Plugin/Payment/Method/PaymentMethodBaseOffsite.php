@@ -8,10 +8,7 @@
 
 namespace Drupal\payment_offsite_api\Plugin\Payment\Method;
 
-
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Url;
 use Drupal\Core\Utility\Token;
 use Drupal\payment\EventDispatcherInterface;
@@ -20,14 +17,11 @@ use Drupal\payment\Plugin\Payment\Method\PaymentMethodBase;
 use Drupal\payment\Plugin\Payment\Status\PaymentStatusManagerInterface;
 use Drupal\payment\Response\Response;
 
-define('PAYMENT_OFFSITE_SIGN_IN', 'IN');
-define('PAYMENT_OFFSITE_SIGN_OUT', 'OUT');
-
 /**
- * Class PaymentMethodBaseOffsite
+ * Class PaymentMethodBaseOffsite.
  * @package Drupal\payment_offsite_api\Plugin\Payment\Method
  */
-abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
+abstract class PaymentMethodBaseOffsite extends PaymentMethodBase implements PaymentMethodBaseOffsiteInterface {
 
   /**
    * @var bool
@@ -40,14 +34,14 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
   private $autoSubmit = FALSE;
 
   /**
-   * @var array
+   * @var bool
    */
-  private $payment_form_data = [];
+  private $debug = FALSE;
 
   /**
    * @var array
    */
-  private $ipn_required_keys = [];
+  private $payment_form_data = [];
 
   /**
    * @var array
@@ -79,41 +73,11 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
    * @param \Drupal\payment\Plugin\Payment\Status\PaymentStatusManagerInterface
    *   The payment status manager.
    */
-  public function __construct(array $configuration, $plugin_id, array $plugin_definition, ModuleHandlerInterface $module_handler, EventDispatcherInterface $event_dispatcher, Token $token, PaymentStatusManagerInterface $payment_status_manager) {
+  public function __construct(array $configuration, $plugin_id, array $plugin_definition, ModuleHandlerInterface $module_handler, EventDispatcherInterface $event_dispatcher, Token $token, PaymentStatusManagerInterface $payment_status_manager, LoggerInterface $logger) {
     $configuration += $this->defaultConfiguration();
     parent::__construct($configuration, $plugin_id, $plugin_definition, $module_handler, $event_dispatcher, $token, $payment_status_manager);
     $this->request = \Drupal::request();
-    $this->logger = \Drupal::service('payment.logger');
-  }
-
-  /**
-   * IPN required keys getter.
-   *
-   * @return array
-   *   Required keys array.
-   */
-  public function getIpnRequiredKeys() {
-    return $this->ipn_required_keys;
-  }
-
-  /**
-   * IPN required keys setter.
-   *
-   * @param array $required_keys
-   *   Required keys array.
-   */
-  public function setIpnRequiredKeys($required_keys) {
-    $this->ipn_required_keys = $required_keys;
-  }
-
-  /**
-   * Add IPN required key.
-   *
-   * @param string $key
-   *   Required key name.
-   */
-  public function addIpnRequiredKey($key) {
-    $this->ipn_required_keys[] = $key;
+    $this->logger = $logger;
   }
 
   /**
@@ -179,6 +143,38 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
   }
 
   /**
+   * AautoSubmit flag getter.
+   *
+   * @return bool
+   *   TRUE if autosubmit required FALSE otherwise.
+   */
+  public function getDebug() {
+    return $this->debug;
+  }
+
+
+  /**
+   * AautoSubmit flag setter.
+   *
+   * @param bool $debug
+   *   TRUE if autosubmit required FALSE otherwise.
+   */
+  public function setDebug($debug) {
+    $this->debug = $debug;
+  }
+
+  /**
+   * AutoSubmit flag getter.
+   *
+   * @return bool
+   *   TRUE if autosubmit required FALSE otherwise.
+   */
+  public function isDebug() {
+    return $this->getDebug();
+  }
+
+
+  /**
    * Fallback mode  flag getter.
    *
    * @return bool
@@ -214,7 +210,7 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
    * @return array
    *   Form array.
    */
-  abstract protected function paymentForm();
+  abstract public function paymentForm();
 
   /**
    * Performs the actual IPN/Interaction/Process/Result execution.
@@ -232,116 +228,41 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
   abstract public function ipnExecute();
 
   /**
-   * Performs signature generation.
-   *
-   * @return string
-   *   Generated signature.
-   */
-  abstract protected function getSignature($signature_type = PAYMENT_OFFSITE_SIGN_IN);
-
-  /**
    * Allowed Performs signature generation.
    *
    * @return array
    *   Allowed payment method external statuses array keyed by machine name.
    */
-  abstract public function getAllowedExternalStatuses();
+  abstract public function getResultPages();
 
   /**
-   * Allowed Performs signature generation.
+   * Is mayment method configured halper.
    *
-   * @return string
-   *   Allowed payment method external statuses array keyed by machine name.
+   * @return bool
+   *    TRUE if payment methid configured FALSE otherwise.
    */
-  abstract protected function getMerchantIdName();
-
-  /**
-   * Transaction ID name getter.
-   *
-   * @return string
-   *   Transaction ID name.
-   */
-  abstract protected function getTransactionIdName();
-
-  /**
-   * Amount name getter.
-   *
-   * @return string
-   *   Amount name.
-   */
-  abstract protected function getAmountName();
-
-  /**
-   * Signature name getter.
-   *
-   * @return string
-   *   Signature name.
-   */
-  abstract protected function getSignatureName();
-
-  /**
-   * Signature name getter.
-   *
-   * @return array
-   *   Signature name.
-   */
-  abstract protected function getRequiredKeys();
-
-  /**
-   * @return mixed
-   */
-  abstract protected function isConfigured();
+  abstract public function isConfigured();
 
   /**
    * IPN/Interaction/Process/Result validator.
    *
-   * @return mixed
+   * @return bool
+   *    TRUE on successful validation FALSE otherwise.
    */
-  protected function ipnValidate() {
-    $validators = $this->getValidators();
+  abstract public function ipnValidate();
 
-    $required_keys = $this->getRequiredKeys();
-    $this->setIpnRequiredKeys($required_keys);
-
-    foreach ($validators as $validator) {
-      $validate_method_name = 'validate' . $validator;
-      if (!method_exists($this, $validate_method_name)) {
-        \Drupal::logger('interkassa_payment')->log(
-          RfcLogLevel::WARNING,
-          'Validator @method not exists',
-          ['@method' => $validate_method_name]
-        );
-        return FALSE;
-      }
-
-      if (!$this->$validate_method_name()) {
-        \Drupal::logger('interkassa_payment')->log(
-          RfcLogLevel::WARNING,
-          'Validator @method return FALSE',
-          ['@method' => $validate_method_name]
-        );
-        return FALSE;
-      }
-    }
-    return TRUE;
-  }
-
-  protected function getValidators() {
-    return [
-      'Empty',
-      'RequiredKeys',
-      'Merchant',
-      'Signature',
-      'TransactionId',
-      'Amount',
-    ];
+  /**
+   * {@inheritdoc}
+   */
+  public function getPaymentExecutionResult() {
+    $response = new Response(Url::fromRoute('payment.offsite.redirect', [
+      'payment' => $this->getPayment()->id()
+    ]));
+    return new OperationResult($response);
   }
 
   /**
    * Form hidden items generator.
-   *
-   * @param array $form_data
-   *   Hidden form data.
    *
    * @return array
    *   Form hidden.
@@ -358,109 +279,6 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase {
     }
 
     return $form;
-  }
-
-  protected function validateEmpty() {
-    // Exit now if the $_POST was empty.
-    if (empty($this->request->request->keys())) {
-      \Drupal::logger('interkassa_payment')->log(
-        RfcLogLevel::WARNING,
-        'Interaction URL accessed with no POST data submitted.',
-        []
-      );
-      return FALSE;
-    }
-    return TRUE;
-
-  }
-
-  protected function validateRequiredKeys() {
-    $unavailable_required_keys = array_diff($this->getIpnRequiredKeys(), $this->request->request->keys());
-    if (!empty($unavailable_required_keys)) {
-      \Drupal::logger('interkassa_payment')->log(
-        RfcLogLevel::WARNING,
-        'Missing POST keys. POST data: <pre>@data</pre>',
-        ['@data' => print_r($unavailable_required_keys, TRUE)]
-      );
-      return FALSE;
-    }
-    return TRUE;
-
-  }
-
-  protected function validateMerchant() {
-    $request_merchant = $this->request->get($this->getMerchantIdName());
-    // Exit now if missing Merchant ID.
-    if (!$this->isConfigured() || $request_merchant != $this->getMerchantId()) {
-      \Drupal::logger('interkassa_payment')->log(
-        RfcLogLevel::WARNING,
-        'Missing merchant id. POST data: <pre>@data</pre>',
-        ['@data' => print_r(\Drupal::request()->request, TRUE)]
-      );
-
-      return FALSE;
-    }
-    return TRUE;
-
-  }
-
-  protected function validateTransactionId() {
-    $request_payment_id = $this->request->get($this->getTransactionIdName());
-    $payment = \Drupal::entityTypeManager()
-      ->getStorage('payment')
-      ->load($request_payment_id);
-    if (!$payment) {
-      \Drupal::logger('interkassa_payment')->log(
-        RfcLogLevel::WARNING,
-        'Missing transaction id. POST data: <pre>@data</pre>',
-        ['@data' => print_r($this->request->request, TRUE)]
-      );
-      return FALSE;
-    }
-    $this->setPayment($payment);
-    return TRUE;
-  }
-
-  protected function validateAmount() {
-    $request_amount = $this->request->get($this->getAmountName());
-    if ($this->getPayment()->getAmount() != $request_amount) {
-      \Drupal::logger('interkassa_payment')->log(
-        RfcLogLevel::WARNING,
-        'Missing transaction id amount. POST data: <pre>@data</pre>',
-        ['@data' => print_r(\Drupal::request()->request, TRUE)]
-      );
-      return FALSE;
-    }
-    return TRUE;
-  }
-
-  protected function validateSignature() {
-    $request_signature = $this->request->get($this->getSignatureName());
-    $sign = $this->getSignature(PAYMENT_OFFSITE_SIGN_IN);
-    // Exit now if missing Signature.
-    if (Unicode::strtoupper($request_signature) != Unicode::strtoupper($sign)) {
-      \Drupal::logger('interkassa_payment')->log(
-        RfcLogLevel::WARNING,
-        'Missing Signature. POST data: <pre>@data</pre>',
-        ['@data' => print_r($this->request->request, TRUE)]
-      );
-      return FALSE;
-    }
-    return TRUE;
-  }
-
-  protected function getMerchantId() {
-    return $this->pluginDefinition[$this->getMerchantIdName()];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getPaymentExecutionResult() {
-    $response = new Response(Url::fromRoute('payment.offsite.redirect', [
-      'payment' => $this->getPayment()->id()
-    ]));
-    return new OperationResult($response);
   }
 
 }

@@ -133,12 +133,52 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
       '#title' => $this->t('Provider statuses mapping'),
     ];
 
+    $element['payment_offsite_api'] = [
+      '#group' => $workflow_group,
+      '#open' => FALSE,
+      '#type' => 'details',
+      '#title' => $this->t('Payment offsite api settings'),
+    ];
+
+    $element['payment_offsite_api']['autosubmit'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Auto submit payment form'),
+      '#default_value' => $this->getAutoSubmit(),
+    ];
+
+    $element['payment_offsite_api']['debug'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Debug mode'),
+      '#default_value' => $this->getDebug(),
+    ];
+
+
     foreach (array_keys($this->getStatuses()) as $status) {
       $element['statuses'][$status . '_status'] = $this->getSinglePaymentStatusSelector($form_state, $status)
         ->buildSelectorForm([], $form_state);
     }
 
     return $element;
+  }
+
+  /**
+   * Returns the auto submit flag.
+   *
+   * @return bool
+   *   auto submit flag.
+   */
+  public function getAutoSubmit() {
+    return $this->configuration['auto_submit'];
+  }
+
+  /**
+   * Returns the debug flag.
+   *
+   * @return bool
+   *   Debug flag.
+   */
+  public function getDebug() {
+    return $this->configuration['debug'];
   }
 
   /**

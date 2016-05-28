@@ -47,7 +47,7 @@ class ExternalAccessCheck implements AccessInterface {
       // Process only off-site payment methods.
       return AccessResult::forbidden();
     }
-    $external_statuses = ['ipn' => FALSE] + $payment_method->getAllowedExternalStatuses();
+    $external_statuses = ['ipn' => FALSE] + $payment_method->getResultPages();
     return AccessResult::allowedIf(array_key_exists($external_status, $external_statuses));
   }
 

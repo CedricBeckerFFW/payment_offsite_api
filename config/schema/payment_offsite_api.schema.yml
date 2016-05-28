@@ -2,6 +2,12 @@ plugin.plugin_configuration.payment_method_configuration.payment_offsite_api:
   type: plugin.plugin_configuration.payment_method_configuration.payment_base
   label: 'Base config for off-site payment methods'
   mapping:
+    auto_submit:
+      type: boolean;
+      label: 'Auto submit payment form'
+    debug:
+      type: boolean
+      label: 'Debug mode'
     ipn_statuses:
       type: sequence
       label: 'IPN statuses'

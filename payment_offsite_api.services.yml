@@ -9,3 +9,8 @@ services:
     arguments: ['@plugin.manager.payment.method']
     tags:
       - { name: access_check, applies_to: _access_payment_offsite_api_external }
+
+services:
+  logger.channel.payment_offsite_api:
+    parent: logger.channel_base
+    arguments: ['payment_offsite_api']
