@@ -3,13 +3,13 @@
 namespace Drupal\payment_offsite_api\Controller;
 
 use Drupal\Component\Utility\Unicode;
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Cache\CacheableResponse;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\payment\Entity\PaymentMethodConfiguration;
 use Drupal\payment\Entity\PaymentMethodConfigurationInterface;
 use Drupal\payment\Plugin\Payment\Method\PaymentMethodManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Handles result pages and IPN requests.
@@ -45,7 +45,7 @@ class PaymentOffsiteController extends ControllerBase {
   /**
    * Processes payment gateway responses.
    *
-   * @param \Drupal\payment\Plugin\Payment\MethodConfiguration\PaymentMethodConfigurationInterface $payment_method_configuration
+   * @param \Drupal\payment\Entity\PaymentMethodConfigurationInterface $payment_method_configuration
    *   The payment method configuration entity.
    * @param string $external_status
    *   The passed in status.
@@ -60,12 +60,20 @@ class PaymentOffsiteController extends ControllerBase {
     $payment_method = $this->paymentMethodManager
       ->createInstance($plugin_id, $payment_method_configuration->getPluginConfiguration());
 
+    // Do not cache responses.
+    $cache_metadata = CacheableMetadata::createFromRenderArray([
+      '#cache' => [
+        'max-age' => 0,
+      ],
+    ]);
+
     // Process IPN as hidden.
     if ($external_status == 'ipn') {
       $ipn_result = $payment_method->ipnExecute();
       $response_message = isset($ipn_result['message']) ? $ipn_result['message'] : '';
       $response_code = isset($ipn_result['response_code']) ? $ipn_result['response_code'] : 200;
-      return new Response($response_message, $response_code);
+      $response = new CacheableResponse($response_message, $response_code);
+      return $response->addCacheableDependency($cache_metadata);
     }
 
     // Process any other statuses with fallback mode support.
@@ -76,18 +84,23 @@ class PaymentOffsiteController extends ControllerBase {
       if (!$ipn_result['status'] != 'success') {
         $response_message = isset($ipn_result['message']) ? $ipn_result['message'] : '';
         $response_code = isset($ipn_result['response_code']) ? $ipn_result['response_code'] : 200;
-        return new Response($response_message, $response_code);
+        $response = new CacheableResponse($response_message, $response_code);
+        return $response->addCacheableDependency($cache_metadata);
       }
     }
 
     $method = 'get' . Unicode::ucfirst($external_status) . 'Content';
     if (is_callable([$payment_method, $method])) {
-      return $payment_method->$method($request, $payment_method);
+      $build = $payment_method->$method($request, $payment_method);
+      // Prevent caching af plugin does not care about it.
+      return $build + ['#cache' => ['max-age' => 0]];
     }
 
     // @todo Add logging of missed content callback in payment method.
     return [
       '#markup' => $this->t('Payment processed with @status', ['@status' => $external_status]),
+      // Do not cache.
+      '#cache' => ['max-age' => 0],
     ];
   }
 
