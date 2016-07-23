@@ -11,4 +11,5 @@ payment.offsite.external:
     _controller: '\Drupal\payment_offsite_api\Controller\PaymentOffsiteController::content'
   requirements:
     _access_payment_offsite_api_external: 'TRUE'
+    payment_method_configuration: ^[a-zA-Z0-9_]+
     external_status: ^[a-zA-Z0-9_]+

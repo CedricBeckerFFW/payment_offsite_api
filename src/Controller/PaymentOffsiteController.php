@@ -5,8 +5,8 @@ namespace Drupal\payment_offsite_api\Controller;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\payment\Entity\PaymentMethodConfiguration;
+use Drupal\payment\Entity\PaymentMethodConfigurationInterface;
 use Drupal\payment\Plugin\Payment\Method\PaymentMethodManagerInterface;
-use Drupal\payment\Plugin\Payment\MethodConfiguration\PaymentMethodConfigurationInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,7 +59,6 @@ class PaymentOffsiteController extends ControllerBase {
     $plugin_id = $payment_method_configuration->getPluginId() . ':' . $payment_method_configuration->id();
     $payment_method = $this->paymentMethodManager
       ->createInstance($plugin_id, $payment_method_configuration->getPluginConfiguration());
-    $external_statuses = $payment_method->getAllowedExternalStatuses();
 
     // Process IPN as hidden.
     if ($external_status == 'ipn') {
@@ -70,6 +69,7 @@ class PaymentOffsiteController extends ControllerBase {
     }
 
     // Process any other statuses with fallback mode support.
+    $external_statuses = $payment_method->getResultPages();
     if ($external_statuses[$external_status] === TRUE) {
       $payment_method->setFallbackMode(TRUE);
       $ipn_result = $payment_method->ipnExecute();

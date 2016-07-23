@@ -97,6 +97,9 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
   /**
    * Gets the status to set on payment execution.
    *
+   * @param string $status_id
+   *   Payment gateway status.
+   *
    * @return string
    *   The plugin ID of the payment status to set.
    */
@@ -182,6 +185,26 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
   }
 
   /**
+   * Set auto submit flag.
+   *
+   * @param bool $auto_submit
+   *   TRUE on auto submit mode.
+   */
+  public function setAutoSubmit($auto_submit) {
+    $this->configuration['auto_submit'] = $auto_submit;
+  }
+
+  /**
+   * Set verbose flag.
+   *
+   * @param bool $verbose
+   *   TRUE on verbose mode.
+   */
+  public function setVerbose($verbose) {
+    $this->configuration['verbose'] = $verbose;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
@@ -204,6 +227,15 @@ class PaymentMethodConfigurationBaseOffsite extends PaymentMethodConfigurationBa
         ->getSelectedPlugin()
         ->getPluginId());
     }
+    $key = [
+      'plugin_form',
+      'plugin_form',
+      'payment_offsite_api',
+    ];
+    $verbose_key = array_merge($key, ['verbose']);
+    $this->setVerbose($form_state->getValue($verbose_key, FALSE));
+    $auto_submit_key = array_merge($key, ['auto_submit']);
+    $this->setAutoSubmit($form_state->getValue($auto_submit_key, TRUE));
   }
 
   /**

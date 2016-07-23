@@ -6,6 +6,8 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Routing\Access\AccessInterface;
 use Drupal\payment\Entity\PaymentMethodConfigurationInterface;
 use Drupal\payment\Plugin\Payment\Method\PaymentMethodManagerInterface;
+use Drupal\payment\Plugin\Payment\MethodConfiguration\PaymentMethodConfigurationManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Checks access to external responses.
@@ -17,15 +19,16 @@ class ExternalAccessCheck implements AccessInterface {
    *
    * @var \Drupal\payment\Plugin\Payment\Method\PaymentMethodManagerInterface
    */
+  protected $paymentMethodConfigurationManager;
   protected $paymentMethodManager;
-
   /**
    * Constructs a new ExternalAccessCheck object.
    *
-   * @param \Drupal\payment\Plugin\Payment\Method\PaymentMethodManagerInterface $payment_method_manager
+   * @param \Drupal\payment\Plugin\Payment\Method\PaymentMethodManagerInterface $payment_method_configuration_manager
    *   The payment method manager.
    */
-  public function __construct(PaymentMethodManagerInterface $payment_method_manager) {
+  public function __construct(PaymentMethodConfigurationManagerInterface $payment_method_configuration_manager, PaymentMethodManagerInterface $payment_method_manager) {
+    $this->paymentMethodConfigurationManager = $payment_method_configuration_manager;
     $this->paymentMethodManager = $payment_method_manager;
   }
 
@@ -48,7 +51,7 @@ class ExternalAccessCheck implements AccessInterface {
       return AccessResult::forbidden();
     }
     $external_statuses = ['ipn' => FALSE] + $payment_method->getResultPages();
-    return AccessResult::allowedIf(array_key_exists($external_status, $external_statuses));
+    return AccessResult::allowedIf(array_key_exists($external_status, $external_statuses))->setCacheMaxAge(0);
   }
 
 }

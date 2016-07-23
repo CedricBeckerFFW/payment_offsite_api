@@ -127,18 +127,20 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
 
     foreach ($validators as $validator) {
       if (!method_exists($this, $validator)) {
-        // @todo replace with throw exception.
-        $this->logger->error('Validator @method not exists',
-          ['@method' => $validator]
-        );
+        if ($this->isVerbose()) {
+          $this->logger->error('Validator @method not exists',
+            ['@method' => $validator]
+          );
+        }
         return FALSE;
       }
 
       if (!$this->$validator()) {
-        // @todo replace with throw exception.
-        $this->logger->error('Validator @method return FALSE',
-          ['@method' => $validator]
-        );
+        if ($this->isVerbose()) {
+          $this->logger->error('Validator @method return FALSE',
+            ['@method' => $validator]
+          );
+        }
         return FALSE;
       }
     }
@@ -172,10 +174,11 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
   protected function validateEmpty() {
     // Exit now if the $_POST was empty.
     if (empty($this->request->request->keys())) {
-      // @todo replace with throw exception.
-      $this->logger->error('Interaction URL accessed with no POST data submitted.',
-        []
-      );
+      if ($this->isVerbose()) {
+        $this->logger->error('Interaction URL accessed with no POST data submitted.',
+          []
+        );
+      }
       return FALSE;
     }
     return TRUE;
@@ -191,10 +194,11 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
   protected function validateRequiredKeys() {
     $unavailable_required_keys = array_diff($this->getIpnRequiredKeys(), $this->request->request->keys());
     if (!empty($unavailable_required_keys)) {
-      // @todo replace with throw exception.
-      $this->logger->error('Missing POST keys. POST data: <pre>@data</pre>',
-        ['@data' => print_r($unavailable_required_keys, TRUE)]
-      );
+      if ($this->isVerbose()) {
+        $this->logger->error('Missing POST keys. POST data: <pre>@data</pre>',
+          ['@data' => print_r($unavailable_required_keys, TRUE)]
+        );
+      }
       return FALSE;
     }
     return TRUE;
@@ -211,11 +215,11 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
     $request_merchant = $this->request->get($this->getMerchantIdName());
     // Exit now if missing Merchant ID.
     if (!$this->isConfigured() || $request_merchant != $this->getMerchantId()) {
-      // @todo replace with throw exception.
-      $this->logger->error('Missing merchant id. POST data: <pre>@data</pre>',
-        ['@data' => print_r(\Drupal::request()->request, TRUE)]
-      );
-
+      if ($this->isVerbose()) {
+        $this->logger->error('Missing merchant id. POST data: <pre>@data</pre>',
+          ['@data' => print_r(\Drupal::request()->request, TRUE)]
+        );
+      }
       return FALSE;
     }
     return TRUE;
@@ -234,10 +238,11 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
       ->getStorage('payment')
       ->load($request_payment_id);
     if (!$payment) {
-      // @todo replace with throw exception.
-      $this->logger->error('Missing transaction id. POST data: <pre>@data</pre>',
-        ['@data' => print_r($this->request->request, TRUE)]
-      );
+      if ($this->isVerbose()) {
+        $this->logger->error('Missing transaction id. POST data: <pre>@data</pre>',
+          ['@data' => print_r($this->request->request, TRUE)]
+        );
+      }
       return FALSE;
     }
     $this->setPayment($payment);
@@ -253,10 +258,11 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
   protected function validateAmount() {
     $request_amount = $this->request->get($this->getAmountName());
     if ($this->getPayment()->getAmount() != $request_amount) {
-      // @todo replace with throw exception.
-      $this->logger->error('Missing transaction id amount. POST data: <pre>@data</pre>',
-        ['@data' => print_r(\Drupal::request()->request, TRUE)]
-      );
+      if ($this->isVerbose()) {
+        $this->logger->error('Missing transaction id amount. POST data: <pre>@data</pre>',
+          ['@data' => print_r(\Drupal::request()->request, TRUE)]
+        );
+      }
       return FALSE;
     }
     return TRUE;
@@ -273,10 +279,11 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
     $sign = $this->getSignature(self::SIGN_IN);
     // Exit now if missing Signature.
     if (Unicode::strtoupper($request_signature) != Unicode::strtoupper($sign)) {
-      // @todo replace with throw exception.
-      $this->logger->error('Missing Signature. POST data: <pre>@data</pre>',
-        ['@data' => print_r($this->request->request, TRUE)]
-      );
+      if ($this->isVerbose()) {
+        $this->logger->error('Missing Signature. POST data: <pre>@data</pre>',
+          ['@data' => print_r($this->request->request, TRUE)]
+        );
+      }
       return FALSE;
     }
     return TRUE;

@@ -16,6 +16,7 @@ use Drupal\payment\OperationResult;
 use Drupal\payment\Plugin\Payment\Method\PaymentMethodBase;
 use Drupal\payment\Plugin\Payment\Status\PaymentStatusManagerInterface;
 use Drupal\payment\Response\Response;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class PaymentMethodBaseOffsite.
@@ -73,11 +74,11 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase implements Pay
    * @param \Drupal\payment\Plugin\Payment\Status\PaymentStatusManagerInterface
    *   The payment status manager.
    */
-  public function __construct(array $configuration, $plugin_id, array $plugin_definition, ModuleHandlerInterface $module_handler, EventDispatcherInterface $event_dispatcher, Token $token, PaymentStatusManagerInterface $payment_status_manager, LoggerInterface $logger) {
+  public function __construct(array $configuration, $plugin_id, array $plugin_definition, ModuleHandlerInterface $module_handler, EventDispatcherInterface $event_dispatcher, Token $token, PaymentStatusManagerInterface $payment_status_manager) {
     $configuration += $this->defaultConfiguration();
     parent::__construct($configuration, $plugin_id, $plugin_definition, $module_handler, $event_dispatcher, $token, $payment_status_manager);
     $this->request = \Drupal::request();
-    $this->logger = $logger;
+    $this->logger = \Drupal::logger('payment_offsite_api.logger');
   }
 
   /**

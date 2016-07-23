@@ -6,11 +6,11 @@ services:
 
   access_check.payment_offsite_api.external:
     class: Drupal\payment_offsite_api\Access\ExternalAccessCheck
-    arguments: ['@plugin.manager.payment.method']
+    arguments: ['@plugin.manager.payment.method_configuration', '@plugin.manager.payment.method']
     tags:
       - { name: access_check, applies_to: _access_payment_offsite_api_external }
 
 services:
-  logger.channel.payment_offsite_api:
+  payment_offsite_api.logger:
     parent: logger.channel_base
     arguments: ['payment_offsite_api']
