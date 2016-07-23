@@ -26,7 +26,7 @@ class RedirectAccessCheck implements AccessInterface {
   public function access(AccountInterface $account, PaymentInterface $payment) {
     return AccessResult::allowedIf($account->id() == $payment->getOwnerId()
       && is_subclass_of($payment->getPaymentMethod(), 'Drupal\payment_offsite_api\Plugin\Payment\Method\PaymentMethodBaseOffsite')
-      && $payment->getPaymentStatus()->getPluginId() == 'payment_pending');
+      && $payment->getPaymentStatus()->getPluginId() == 'payment_pending')->setCacheMaxAge(0);;
   }
 
 }
