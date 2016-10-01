@@ -120,8 +120,13 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
    * {@inheritdoc}
    */
   public function ipnValidate() {
-    $validators = $this->getValidators();
+    if ($this->isVerbose()) {
+      $this->logger->info('Request data <pre>@data</pre>',
+        ['@data' => print_r($this->request->request->all(), TRUE)]
+      );
+    }
 
+    $validators = $this->getValidators();
     $required_keys = $this->getRequiredKeys();
     $this->setIpnRequiredKeys($required_keys);
 
@@ -280,8 +285,11 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
     // Exit now if missing Signature.
     if (Unicode::strtoupper($request_signature) != Unicode::strtoupper($sign)) {
       if ($this->isVerbose()) {
-        $this->logger->error('Missing Signature. POST data: <pre>@data</pre>',
-          ['@data' => print_r($this->request->request, TRUE)]
+        $this->logger->error('Missing Signature. POST data: <pre>@data</pre> Calculated sign: <pre>@calculated_sign</pre>',
+          [
+            '@data' => print_r($this->request->request, TRUE),
+            '@calculated_sign' => $sign,
+          ]
         );
       }
       return FALSE;
