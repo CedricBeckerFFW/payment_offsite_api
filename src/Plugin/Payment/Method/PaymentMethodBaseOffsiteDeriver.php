@@ -61,13 +61,17 @@ class PaymentMethodBaseOffsiteDeriver extends DeriverBase implements ContainerDe
     $payment_methods = $this->paymentMethodConfigurationStorage->loadMultiple();
     foreach ($payment_methods as $payment_method) {
       $configuration_plugin = $this->paymentMethodConfigurationManager->createInstance($payment_method->getPluginId(), $payment_method->getPluginConfiguration());
-      if (is_subclass_of($configuration_plugin, '\Drupal\payment_offsite_api\Plugin\Payment\MethodConfiguration\PaymentMethodConfigurationBaseOffsite')) {
-        $this->derivatives[$payment_method->id()] = [
-          'id' => $base_plugin_definition['id'] . ':' . $payment_method->id(),
-          'active' => $payment_method->status(),
-          'label' => $payment_method->label(),
-        ] + $configuration_plugin->getConfiguration() + $base_plugin_definition;
+      if ($payment_method->getPluginId() != $base_plugin_definition['id']) {
+        continue;
       }
+      if (!is_subclass_of($configuration_plugin, '\Drupal\payment_offsite_api\Plugin\Payment\MethodConfiguration\PaymentMethodConfigurationBaseOffsite')) {
+        continue;
+      }
+      $this->derivatives[$payment_method->id()] = [
+        'id' => $base_plugin_definition['id'] . ':' . $payment_method->id(),
+        'active' => $payment_method->status(),
+        'label' => $payment_method->label(),
+      ] + $configuration_plugin->getConfiguration() + $base_plugin_definition;
     }
 
     return $this->derivatives;
