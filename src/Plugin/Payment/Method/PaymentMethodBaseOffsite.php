@@ -79,6 +79,8 @@ abstract class PaymentMethodBaseOffsite extends PaymentMethodBase implements Pay
     parent::__construct($configuration, $plugin_id, $plugin_definition, $module_handler, $event_dispatcher, $token, $payment_status_manager);
     $this->request = \Drupal::request();
     $this->logger = \Drupal::logger('payment_offsite_api.logger');
+    $this->verbose = $this->pluginDefinition['verbose'];
+    $this->autoSubmit = $this->pluginDefinition['auto_submit'];
   }
 
   /**
