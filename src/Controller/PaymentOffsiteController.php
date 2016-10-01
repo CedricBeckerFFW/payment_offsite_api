@@ -10,6 +10,7 @@ use Drupal\payment\Entity\PaymentMethodConfigurationInterface;
 use Drupal\payment\Plugin\Payment\Method\PaymentMethodManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Handles result pages and IPN requests.
@@ -60,20 +61,12 @@ class PaymentOffsiteController extends ControllerBase {
     $payment_method = $this->paymentMethodManager
       ->createInstance($plugin_id, $payment_method_configuration->getPluginConfiguration());
 
-    // Do not cache responses.
-    $cache_metadata = CacheableMetadata::createFromRenderArray([
-      '#cache' => [
-        'max-age' => 0,
-      ],
-    ]);
-
     // Process IPN as hidden.
     if ($external_status == 'ipn') {
       $ipn_result = $payment_method->ipnExecute();
       $response_message = isset($ipn_result['message']) ? $ipn_result['message'] : '';
       $response_code = isset($ipn_result['response_code']) ? $ipn_result['response_code'] : 200;
-      $response = new CacheableResponse($response_message, $response_code);
-      return $response->addCacheableDependency($cache_metadata);
+      return new Response($response_message, $response_code);
     }
 
     // Process any other statuses with fallback mode support.
@@ -81,11 +74,11 @@ class PaymentOffsiteController extends ControllerBase {
     if ($external_statuses[$external_status] === TRUE) {
       $payment_method->setFallbackMode(TRUE);
       $ipn_result = $payment_method->ipnExecute();
-      if (!$ipn_result['status'] != 'success') {
+      // If IPN validation fail we process it as IPN.
+      if ($ipn_result['status'] != 'success') {
         $response_message = isset($ipn_result['message']) ? $ipn_result['message'] : '';
         $response_code = isset($ipn_result['response_code']) ? $ipn_result['response_code'] : 200;
-        $response = new CacheableResponse($response_message, $response_code);
-        return $response->addCacheableDependency($cache_metadata);
+        return new Response($response_message, $response_code);
       }
     }
 
@@ -99,8 +92,6 @@ class PaymentOffsiteController extends ControllerBase {
     // @todo Add logging of missed content callback in payment method.
     return [
       '#markup' => $this->t('Payment processed with @status', ['@status' => $external_status]),
-      // Do not cache.
-      '#cache' => ['max-age' => 0],
     ];
   }
 
