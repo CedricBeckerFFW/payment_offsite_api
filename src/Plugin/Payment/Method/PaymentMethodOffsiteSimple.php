@@ -217,7 +217,10 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
    *   TRUE on successful validation FALSE otherwise.
    */
   protected function validateMerchant() {
-    $request_merchant = $this->request->get($this->getMerchantIdName());
+    $request_merchant = $this->request->request->get($this->getMerchantIdName());
+    if (is_null($request_merchant)) {
+      $request_merchant = $this->request->query->get($this->getMerchantIdName());
+    }
     // Exit now if missing Merchant ID.
     if (!$this->isConfigured() || $request_merchant != $this->getMerchantId()) {
       if ($this->isVerbose()) {
@@ -238,7 +241,10 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
    *   TRUE on successful validation FALSE otherwise.
    */
   protected function validateTransactionId() {
-    $request_payment_id = $this->request->get($this->getTransactionIdName());
+    $request_payment_id = $this->request->query->get($this->getTransactionIdName());
+    if (is_null($request_payment_id)) {
+      $request_payment_id = $this->request->request->get($this->getTransactionIdName());
+    }
     $payment = \Drupal::entityTypeManager()
       ->getStorage('payment')
       ->load($request_payment_id);
@@ -261,7 +267,10 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
    *   TRUE on successful validation FALSE otherwise.
    */
   protected function validateAmount() {
-    $request_amount = $this->request->get($this->getAmountName());
+    $request_amount = $this->request->request->get($this->getAmountName());
+    if (is_null($request_amount)) {
+      $request_amount = $this->request->query->get($this->getAmountName());
+    }
     if ($this->getPayment()->getAmount() != $request_amount) {
       if ($this->isVerbose()) {
         $this->logger->error('Missing transaction id amount. POST data: <pre>@data</pre>',
@@ -280,7 +289,10 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
    *   TRUE on successful validation FALSE otherwise.
    */
   protected function validateSignature() {
-    $request_signature = $this->request->get($this->getSignatureName());
+    $request_signature = $this->request->request->get($this->getSignatureName());
+    if (is_null($request_signature)) {
+      $request_signature = $this->request->query->get($this->getSignatureName());
+    }
     $sign = $this->getSignature(self::SIGN_IN);
     // Exit now if missing Signature.
     if (Unicode::strtoupper($request_signature) != Unicode::strtoupper($sign)) {
