@@ -8,9 +8,6 @@
 
 namespace Drupal\payment_offsite_api\Plugin\Payment\Method;
 
-
-use Drupal\Component\Utility\Unicode;
-
 /**
  * Class PaymentMethodBaseOffsite
  * @package Drupal\payment_offsite_api\Plugin\Payment\Method
@@ -295,7 +292,7 @@ abstract class PaymentMethodOffsiteSimple extends PaymentMethodBaseOffsite imple
     }
     $sign = $this->getSignature(self::SIGN_IN);
     // Exit now if missing Signature.
-    if (Unicode::strtoupper($request_signature) != Unicode::strtoupper($sign)) {
+    if (mb_strtoupper($request_signature) != mb_strtoupper($sign)) {
       if ($this->isVerbose()) {
         $this->logger->error('Missing Signature. POST data: <pre>@data</pre> Calculated sign: <pre>@calculated_sign</pre>',
           [
